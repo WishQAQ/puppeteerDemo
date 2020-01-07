@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 
-let appData = require('./ticketData')
+let appData = import('./ticketData')
 
 let chromeAddress = require('./chromeAddress')
 //
