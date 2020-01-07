@@ -1,21 +1,23 @@
 const puppeteer = require('puppeteer');
 
+let appData = require('./ticketData')
+
 let chromeAddress = require('./chromeAddress')
 //
 // console.log(ticketData);
-// let load = ticketData.load
-const load = {
-  account: 'tt15204922782skcqn',
-  password: 'de289506',
-  start: '重庆北',
-  end: '重庆西',
-  time: '2020-1-28',
-  ticketNum: 'D6170',
-  // userName: '宋娇',
-  userName: '杨国妹',
-  userNumber: '310110196211056302',
-  userType: '儿童票'
-}
+let load = appData.params
+// const load = {
+//   account: 'tt15204922782skcqn',
+//   password: 'de289506',
+//   start: '重庆北',
+//   end: '重庆西',
+//   time: '2020-1-28',
+//   ticketNum: 'D6170',
+//   // userName: '宋娇',
+//   userName: '杨国妹',
+//   userNumber: '310110196211056302',
+//   userType: '儿童票'
+// }
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -83,7 +85,7 @@ const scrapeMedium = async () => {
 
   await page.hover("#J-chepiao")
 
-  await sleep(500)
+  await sleep(800)
 
   await page.click("#J-chepiao > div > div:nth-child(1) > ul > li.nav_dan > a")
 

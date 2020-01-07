@@ -15,7 +15,7 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-(async () => {
+const scrapeMedium = async () => {
   const browser = await puppeteer.launch({
     headless:false, //是否以”无头”的模式运行
     // devtools: true, // 是否打开devtools，headless为false时有效
@@ -330,15 +330,25 @@ function sleep(ms) {
   const aliPayId = page.$$eval("#J_tLoginId", input => input.value)
   console.log(aliPayId);
 
+  console.log("等待支付成功");
+  await page.waitForSelector()
+
+  console.log("点击支付成功按钮");
+
+  console.log("等待乘客信息数据渲染");
+  await page.waitForSelector()
 
 
-  // const result = await page.evaluate(() => {
-  //   let info = document.getElementById("ticketInfo_id").innerText;
-  //   return info
-  // });
+  const result = await page.evaluate(() => {
+    let info = document.getElementById("ticketInfo_id").innerText;
+    return info
+  });
 
-  return  aliPayId
+  return  result
 
-})();
+};
+
+
+module.exports.scrapeMedium = scrapeMedium
 
 

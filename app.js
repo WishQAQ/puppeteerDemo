@@ -1,80 +1,100 @@
 const axios = require('axios');
 
+let appData = require('./ticketData')
+
 const express = require('express')
 const app = express()
-const port = 3000
-
 const scraper = require('./ticketJs')
 
-// scraper.load = {
-//   account: 'fd13308092229ntbcm',
-//   password: 'zxc123456',
-//   start: '重庆北',
-//   end: '重庆西',
-//   time: '2020-1-28',
-//   ticketNum: 'K836',
-//   // userName: '宋娇',
-//   userName: '董欢',
-//   userNumber: '513436200309092060',
-//   userType: '儿童票'
-// }
+const port = 3000
 
-app.get('/', (req, res) => {
+const bodyParser = require('body-parser');//解析,用req.body获取post参数
+// 添加json解析
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false}));
 
-  const mediumArticles = new Promise((resolve, reject) => {
-    scraper
-        .scrapeMedium()
-        .then(data => {
-          resolve(data)
-        })
-        .catch(err => reject('Medium scrape failed'))
-  })
+// 允许所有的请求形式
+app.all('*',function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  // res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild');
+  res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
 
+  if (req.method == 'OPTIONS') {
+    res.send(200);
+  } else {
+    next();
+  }
+});
 
-  Promise.all([mediumArticles])
-      .then(data => {
-        console.log(data);
+app.post('/post', function (req, res) {
+  let params = req.body
 
-        let passengerArr = [];
+  appData.params = params
 
-        let passengerForm = {
-          passenger_id: '',  // 乘客ID
-          name: '',  // 乘客姓名
-          r_order_sn: '',  // 12306订单号
-          seat_number: '', // 席位号
-          ticket_species: '', // 票种
-          ticket_price: '', // 票价
-          ticket_status: '',  // 出票状态
-          ticketing_time: '', // 出票时间
-          payment_account: '', // 支付账号
-          payment_flow_number: '', // 支付流水号
+  let data = {
+    account: params.userAcc,
+    password: params.userPas
+  }
+
+  console.log('当前客户端账号：'+ params.userAcc)
+  console.log('当前客户端密码：'+ params.userPas)
+
+  axios.post('http://oa.huimin.dev.cq1080.com/account/login',data).then(val =>{
+    if(val.data.code === 0){
+      console.log('登录客户端账号成功');
+      axios.interceptors.request.use(function (config) {    // 这里的config包含每次请求的内容
+        config.headers['csrf'] = val.data.result.csrf;
+        return config;
+      }, function (err) {
+        return Promise.reject(err);
+      });
+
+      setTimeout(() =>{
+
+        let ticketData = {
+          account: params.account,
+          password: params.password
         }
 
-        passengerArr.push(passengerForm)
+        console.log('当前12306账号：'+ params.account)
+        console.log('当前12306密码：'+ params.password)
 
-        axios.post('/plug/addBuyTicketsInfo/1', {
-          order_sn : '',  // 订单号
-          token : '',  // 行程标识
-          routeId: '',  // 路线标识
-          departure: '', // 发站
-          arrival: '', // 到站
-          riding_time: '', // 乘车时间
-          ticket_check: '', // 检票口
-          trips_number: '', // 车次
-          info: JSON.stringify(passengerArr),
-
-        })
-            .then(function (response) {
-              console.log(response);
+        axios.post('http://oa.huimin.dev.cq1080.com/plug/login',ticketData).then(val =>{
+          if(val.data.code === 0){
+            console.log('12306账号后台成功，请勿修改12306登录页面账号');
+            const mediumArticles = new Promise((resolve, reject) => {
+              scraper
+                  .scrapeMedium()
+                  .then(data => {
+                    resolve(data)
+                  })
+                  .catch(err => reject('Medium scrape failed'))
             })
-            .catch(function (error) {
-              console.log(error);
-            });
+          }else {
+            console.log(val.data.msg);
+          }
+        })
+      },800)
 
-      })
-      .catch(err => res.status(500).send(err))
-
+    }else {
+      console.log(val.data.msg);
+    }
+  })
 })
+
+// app.get('/', (req, res) => {
+//
+//   const mediumArticles = new Promise((resolve, reject) => {
+//     scraper
+//         .scrapeMedium()
+//         .then(data => {
+//           resolve(data)
+//         })
+//         .catch(err => reject('Medium scrape failed'))
+//   })
+//
+//
+
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
 
