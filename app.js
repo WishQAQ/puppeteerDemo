@@ -74,6 +74,12 @@ app.post('/post', function (req, res) {
                       .scrapeMedium()
                       .then(data => {
                         resolve(data)
+
+                        axios.post('http://oa.huimin.dev.cq1080.com/plug/addBuyTicketsInfo/1',data)
+                            .then(update =>{
+
+                            })
+
                       })
                       .catch(err => reject('Medium scrape failed'))
                 })
