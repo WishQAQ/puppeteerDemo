@@ -1,27 +1,21 @@
 const puppeteer = require('puppeteer');
 
-const load = {
-  account: 'fd15503569028wqnth',
-  password: 'zxc123456',
-  start: '重庆北',
-  end: '重庆西',
-  time: '2020-1-25',
-  ticketNum: 'D6162',
-  userName: '宋娇',
-  userNumber: '513436200309092060',
-  userType: '儿童票'
-}
+let appData = require('./ticketData')
+
+let chromeAddress = require('./chromeAddress')
+
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 const scrapeMedium = async () => {
   const browser = await puppeteer.launch({
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
     headless:false, //是否以”无头”的模式运行
-    // devtools: true, // 是否打开devtools，headless为false时有效
-    slowMo: 50, // puppeteer执行速度
+    devtools: false, // 是否打开devtools，headless为false时有效
+    slowMo: 30, // puppeteer执行速度
     timeout: 0, // 超时，默认30s，0为没有超时
-    executablePath: 'C:\\Program Files (x86)\\Google\\Chrome Dev\\Application\\chrome.exe', // 指定可执行chrome路径
+    executablePath: chromeAddress.address, // 指定可执行chrome路径
   });
 
   const page = await browser.newPage();
@@ -39,6 +33,8 @@ const scrapeMedium = async () => {
   });
   await sleep(1000);
 
+  let load = appData.params
+
   /**
    * @Description: 选择账号登录
    * @author Wish
@@ -55,66 +51,69 @@ const scrapeMedium = async () => {
 
   console.log("等待登录");
   await sleep(1000);
-  // console.log("保存登录截图");
-  // await page.screenshot({path: 'login.png'});
 
   /**
    * @Description: 前往联系人界面
    * @author Wish
    * @date 2019/12/24
   */
+  await page.waitForSelector("#js-minHeight")
+
   await page.waitForSelector('#cylianxiren');
-
-  await sleep(2000);
-  console.log("前往常用联系人界面");
-  await page.click("#cylianxiren")
-
-  await sleep(2000)
-  console.log("点击添加联系人");
-  await page.click("#content_list > div > div.order-item-hd > div:nth-child(2)")
-
-  await page.waitForSelector("#name")  // 等待姓名输入框加载
-
-  await sleep(1000)
-
-  await page.type("#name", load.userName) // 输入姓名
-
-  await page.type("#cardCode", load.userNumber)  // 输入身份证号
-
-  let sexNum = load.userNumber.substr(16,1)  // 获取身份证第17位，奇数为男性偶数为女性
-  if(sexNum % 2 !== 0){
-    await page.click("#sex_code_div > label:nth-child(1)")
-  }else {
-    await page.click("#sex_code_div > label:nth-child(2)")
-  }
-
-  if(load.userType === '儿童票'){
-    await page.click("#js-minHeight > div:nth-child(3) > div.form-list > div > div.form-bd > div")
-    await page.click("#passenger_type_list > li:nth-child(2)")
-    await page.click("#save_btn")
-  }else {
-    await page.click("#save_btn")
-  }
-
-  await sleep(1000)
-  const errorDialog = await page.$(".modal .modal-close")
-  if(errorDialog){  // 判断是否有警告弹窗框
-    await page.click(".modal-close")
-  }
+  //
+  // await sleep(2000);
+  // console.log("前往常用联系人界面");
+  // await page.click("#cylianxiren")
+  //
+  // await sleep(2000)
+  // console.log("点击添加联系人");
+  // await page.click("#content_list > div > div.order-item-hd > div:nth-child(2)")
+  //
+  // await page.waitForSelector("#name")  // 等待姓名输入框加载
+  //
+  // await sleep(1000)
+  //
+  // await page.type("#name", load.userName) // 输入姓名
+  //
+  // await page.type("#cardCode", load.userNumber)  // 输入身份证号
+  //
+  // let sexNum = load.userNumber.substr(16,1)  // 获取身份证第17位，奇数为男性偶数为女性
+  // if(sexNum % 2 !== 0){
+  //   await page.click("#sex_code_div > label:nth-child(1)")
+  // }else {
+  //   await page.click("#sex_code_div > label:nth-child(2)")
+  // }
+  //
+  // if(load.userType === '儿童票'){
+  //   await page.click("#js-minHeight > div:nth-child(3) > div.form-list > div > div.form-bd > div")
+  //   await page.click("#passenger_type_list > li:nth-child(2)")
+  //   await page.click("#save_btn")
+  // }else {
+  //   await page.click("#save_btn")
+  // }
+  //
+  // await sleep(1000)
+  // const errorDialog = await page.$(".modal .modal-close")
+  // if(errorDialog){  // 判断是否有警告弹窗框
+  //   await page.click(".modal-close")
+  // }
 
 
   console.log("2秒后前往购票页");
   await sleep(2000)
+
+
+  await page.waitForSelector("#J-chepiao")
 
   /**
    * @Description: 前往购票页
    * @author Wish
    * @date 2019/12/24
   */
-
+  await sleep(500)
   await page.hover("#J-chepiao")
   console.log("打开车票下拉菜单");
-  await sleep(500)
+  await sleep(800)
 
   await page.click("#J-chepiao > div > div:nth-child(1) > ul > li.nav_dan > a")
   console.log("选择单程车票购买");
@@ -125,7 +124,7 @@ const scrapeMedium = async () => {
   console.log("选中出发地输入框");
   const start_input = await page.$('#fromStationText')  // 出发地输入框
   await start_input.click()
-  await sleep(100)
+  await sleep(300)
   console.log("输入出发地：" + load.start);
   await start_input.type(load.start)  // 输入出发地
   await start_input.type(" ")  // 激活对应城市下拉选择框 添加一个空格
@@ -201,17 +200,17 @@ const scrapeMedium = async () => {
   await page.waitForSelector("#queryLeftTable > tr")
   await sleep(1000)
 
+  console.log("订票车次："+ load.ticketNumber);
+
   const ticketTable = await page.$$eval('#queryLeftTable > tr',res=>res.map(ele=>ele.innerText)) // 获取路线车次表格
-  console.log(ticketTable);
 
   let ticketIndex = ticketTable.map((res, index) =>{
-    if(res.indexOf(load.ticketNum)!== -1){
+    if(res.indexOf(load.ticketNumber)!== -1){
       return index
     }
   })
 
   ticketIndex = parseInt(String(ticketIndex).replace(/[^0-9]/ig,""))
-  console.log(ticketIndex);
   // console.log(page.$$eval('#queryLeftTable > tr:nth-child(' + ticketIndex + ') > td:last-child > a').innerText);
   if(ticketIndex < 1){
     await page.click("#queryLeftTable > tr:first-child > td:last-child > a")
@@ -225,25 +224,41 @@ const scrapeMedium = async () => {
   console.log("获取联系人信息");
   let contactList = await page.$$eval('#normal_passenger_id > li', res=>res.map(ele=>ele.innerText))  // 获取联系人列表数据
 
-  await sleep(2000)
-  const forLoop = async _ => {
-    console.log('start');
-    for (let index = 0; index < contactList.length; index ++) {
-      console.log(index + "：" +contactList[index]);
-      if(contactList[index].toString() === load.userName){
-        if(index < 1){
-          await page.click("#normal_passenger_id > li:first-child > label")
-        }else {
-          await page.click("#normal_passenger_id > li:nth-child("+ (index - 1) +") > label")
+  await sleep(1000)
+
+  // const forLoop = async _ => {
+    for (let item of load.info) {
+      console.log(item);
+      for (let index = 0; index < contactList.length; index++) {
+        // console.log(index + "：" +contactList[index]);
+        console.log(index + contactList[index].toString(), item.userName);
+        if (contactList[index].toString() === item.userName) {
+          if (index < 1) {
+            await page.click("#normal_passenger_id > li:first-child > label")
+          } else {
+            await page.click("#normal_passenger_id > li:nth-child(" + (index + 1) + ") > label")
+          }
+          await sleep(500)
+
+          console.log('判断是否有儿童票提示弹窗');
+          const isNotHidden = await page.$eval('#dialog_xsertcj', (elem) => {
+            return elem.style.display !== 'none'
+          })
+          console.log(isNotHidden);
+          console.log('333');
+          if (isNotHidden) {
+              await page.click('#dialog_xsertcj_ok')
+            console.log('444');
+          }
+          console.log('222');
+
         }
-        console.log('找到啦！' + contactList[index].toString() + " === " + load.userName)
+        console.log('找到啦！' + contactList[index].toString() + " === " + item.userName)
       }
     }
-    console.log('End')
-  }
-
-  await forLoop()
-
+  console.log('111');
+  // }
+  // await forLoop()
 
   await sleep(1000)
 
@@ -306,14 +321,25 @@ const scrapeMedium = async () => {
 
   await sleep(2000)
 
+  //在点击按钮之前，事先定义一个promise，用于返回新tab的page对象
+  const newPagePromise = new Promise(res =>
+      browser.once('targetcreated',
+          target => res(target.page())
+      )
+  );
+
   console.log("确认信息，前往网上支付");
 
   await page.click("#payButton")
 
-  console.log("等待付款列表加载");
-  await page.waitForSelector("body > div:nth-child(2) > div:nth-child(2) > div > form")
+  //点击按钮后，等待新tab对象
+  let newPage = await newPagePromise;
 
-  await sleep(1000)
+// 继续操作新tab页面
+  let title = await newPage.title()
+  console.log('切换到：'+title);
+
+  await sleep(3000)
   console.log("选择支付宝支付");
   await page.click("body > div:nth-child(2) > div:nth-child(2) > div > form > div:nth-child(19) > div > img")
   console.log("前往支付宝付款页面");

@@ -1,43 +1,28 @@
 const puppeteer = require('puppeteer');
 
-let appData = import('./ticketData')
+let appData = require('./ticketData')
 
 let chromeAddress = require('./chromeAddress')
-//
-// console.log(ticketData);
-let load = appData.params
-// const load = {
-//   account: 'tt15204922782skcqn',
-//   password: 'de289506',
-//   start: '重庆北',
-//   end: '重庆西',
-//   time: '2020-1-28',
-//   ticketNum: 'D6170',
-//   // userName: '宋娇',
-//   userName: '杨国妹',
-//   userNumber: '310110196211056302',
-//   userType: '儿童票'
-// }
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-
-const loginTicket = async (load) => {
-
-}
-
-function searchTicket() {
-
-
-}
-function  buyTick(data) {
-
-}
+// const loginTicket = async (load) => {
+//
+// }
+//
+// function searchTicket() {
+//
+//
+// }
+// function  buyTick(data) {
+//
+// }
 
 const scrapeMedium = async () => {
   const browser = await puppeteer.launch({
+    ignoreDefaultArgs: ['--disable-extensions'],
     headless:false, //是否以”无头”的模式运行
     devtools: false, // 是否打开devtools，headless为false时有效
     slowMo: 70, // puppeteer执行速度
@@ -48,12 +33,18 @@ const scrapeMedium = async () => {
   const page = await browser.newPage();
   page.setDefaultNavigationTimeout(0);
 
-  // console.log("打开12306登录页");
+  console.log("打开12306登录页");
   await page.goto('https://kyfw.12306.cn/otn/resources/login.html');
   await page.setViewport({
     width: 1280,
     height: 2200
   });
+
+  let load = appData.params
+
+  console.log(load);
+
+
 
   await page.waitForSelector("body > div.login-panel > div.login-box > ul > li.login-hd-account")
   await sleep(1000);
@@ -171,12 +162,12 @@ const scrapeMedium = async () => {
   await page.waitForSelector("#queryLeftTable > tr")
   await sleep(1000)
 
-  console.log("订票车次："+ load.ticketNum);
+  console.log("订票车次："+ load.ticketNumber);
 
   const ticketTable = await page.$$eval('#queryLeftTable > tr',res=>res.map(ele=>ele.innerText)) // 获取路线车次表格
 
   let ticketIndex = ticketTable.map((res, index) =>{
-    if(res.indexOf(load.ticketNum)!== -1){
+    if(res.indexOf(load.ticketNumber)!== -1){
       return index
     }
   })
