@@ -300,8 +300,8 @@ const scrapeMedium = async () => {
   //   await page.click("#submitOrder_id")
   //   console.log("按钮，开始提交");
   // }
-
-
+  //
+  // await sleep(2000)
   // await page.waitForSelector("#content_checkticketinfo_id",{timeout: 0}) // 等待核对信息弹窗
   // console.log("等待核对信息弹窗");
   //
@@ -370,13 +370,15 @@ const scrapeMedium = async () => {
        aliPayId = await executionContext.evaluate(()=>{
          return document.getElementById('J_tLoginId').value
       })
+      console.log(aliPayId);
     }catch (e) {
       console.log(e)
+      await sleep(5000)
+      await waitPay()
     }
   }
 
-
-   await waitPay()
+  await waitPay()
 
 
   console.log('温馨提示弹窗');
@@ -410,26 +412,35 @@ const scrapeMedium = async () => {
       let uploadUserList = []
       let uploadUserInfo = {}
 
-      uploadDataInfo['order_sn'] = load.info[0].order_sn
-      uploadDataInfo['token'] = load.info[0].token
-      uploadDataInfo['routeId'] = load.info[0].route_id
-      uploadDataInfo['departure'] = load.start
-      uploadDataInfo['arrival'] = load.end
-      uploadDataInfo['riding_time'] = load.time
-      uploadDataInfo['ticket_check'] = payTicketInfo[0].slice(payTicketInfo[0].indexOf('检票口')+ 1)
-      uploadDataInfo['trips_number'] = load.ticketNumber
-
+      uploadDataInfo['order_sn'] = load.info[0].order_sn  // 订单号
+      uploadDataInfo['token'] = load.info[0].token  // 路线token
+      uploadDataInfo['routeId'] = load.info[0].route_id  // 路线ID
+      uploadDataInfo['departure'] = load.start  // 发站
+      uploadDataInfo['arrival'] = load.end  // 到站
+      uploadDataInfo['riding_time'] = load.time  // 乘车时间
+      uploadDataInfo['ticket_check'] = payTicketInfo[0].slice(payTicketInfo[0].indexOf('检票口')+ 3)  // 检票口
+      uploadDataInfo['trips_number'] = load.ticketNumber  // 车次
       console.log(uploadDataInfo);
+      console.log(aliPayId);
 
       payUserInfo.forEach((res,index) =>{
         if(index !== 0){
-          let newRes = res.splice('\n')
-          console.log(newRes);
+          let newArr = res.split('\t')
+          let newRes = []
+          newArr.forEach(item =>{
+            if(item){
+              newRes.push(item)
+            }
+          })
+
           for (let item of load.info) {
             if(newRes[1] === item.userName){
               uploadUserInfo['passenger_id'] = item.passenger_id  // 乘客ID
             }
           }
+
+          console.log(newRes);
+
           uploadUserInfo['name'] = newRes[1]  // 乘客姓名
           uploadUserInfo['r_order_sn'] = orderId[0]  // 12306订单号
           uploadUserInfo['seat_number'] = newRes[6]+'车'+newRes[7] // 席位号
@@ -437,7 +448,7 @@ const scrapeMedium = async () => {
           uploadUserInfo['fwName'] = newRes[5]  // 席别
           uploadUserInfo['ticket_price'] = newRes[8]  // 票价
           uploadUserInfo['ticket_status'] = 1  // 出票状态
-          uploadUserInfo['ticketing_time'] = payTicketInfo.slice(0,10)  // 出票时间
+          uploadUserInfo['ticketing_time'] = String(payTicketInfo.slice(0,10))  // 出票时间
           uploadUserInfo['payment_account'] = aliPayId  // 支付账号
           uploadUserInfo['payment_flow_number'] = ''  // 支付流水号
           uploadUserList.push(uploadUserInfo)
@@ -449,7 +460,8 @@ const scrapeMedium = async () => {
 
       console.log(uploadDataInfo);
     }catch (e) {
-      console.log(e)
+      await sleep(60000)
+      await uploadData()
     }
   }
 
