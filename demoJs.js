@@ -60,9 +60,9 @@ const scrapeMedium = async () => {
    * @author Wish
    * @date 2019/12/24
   */
-  await page.waitForSelector("#js-minHeight")
+  await page.waitForSelector("#js-minHeight",{timeout: 0})
 
-  await page.waitForSelector('#cylianxiren');
+  await page.waitForSelector('#cylianxiren',{timeout: 0});
   //
   // await sleep(2000);
   // console.log("前往常用联系人界面");
@@ -106,7 +106,7 @@ const scrapeMedium = async () => {
   // await sleep(2000)
   //
   //
-  // await page.waitForSelector("#J-chepiao")
+  // await page.waitForSelector("#J-chepiao",{timeout: 0})
   //
   // /**
   //  * @Description: 前往购票页
@@ -121,7 +121,7 @@ const scrapeMedium = async () => {
   // await page.click("#J-chepiao > div > div:nth-child(1) > ul > li.nav_dan > a")
   // console.log("选择单程车票购买");
   //
-  // await page.waitForSelector('#fromStationText');  // 等待输入框加载完成
+  // await page.waitForSelector('#fromStationText',{timeout: 0});  // 等待输入框加载完成
   // await sleep(1000)
   //
   // console.log("选中出发地输入框");
@@ -132,7 +132,7 @@ const scrapeMedium = async () => {
   // await start_input.type(load.start)  // 输入出发地
   // await start_input.type(" ")  // 激活对应城市下拉选择框 添加一个空格
   // await page.keyboard.press('Backspace');  // 删除一个空格
-  // await page.waitForSelector('#panel_cities>div')  // 等待下拉选择框加载
+  // await page.waitForSelector('#panel_cities>div',{timeout: 0})  // 等待下拉选择框加载
   // let cityList = await page.$$eval('#panel_cities>div .ralign', res=>res.map(ele=>ele.innerText))  // 获取激活选择框中的城市列表
   // let listIndex = cityList.map((res,index) => {  // 遍历城市列表获取城市下标
   //   if(res === load.start){
@@ -155,7 +155,7 @@ const scrapeMedium = async () => {
   // await end_input.type(load.end)
   // await end_input.type(" ")  // 激活对应城市下拉选择框 添加一个空格
   // await page.keyboard.press('Backspace');  // 删除一个空格
-  // await page.waitForSelector('#panel_cities>div')  // 等待下拉选择框加载
+  // await page.waitForSelector('#panel_cities>div',{timeout: 0})  // 等待下拉选择框加载
   // cityList = await page.$$eval('#panel_cities>div .ralign',res=>res.map(ele=>ele.innerText))  // 获取激活选择框中的城市列表
   // listIndex = cityList.map((res,index) => {  // 遍历城市列表获取城市下标
   //   if(res === load.end){
@@ -181,7 +181,7 @@ const scrapeMedium = async () => {
   //
   // console.log("当前月："+ thisMonth + "，订票月："+ dataMonth + "，订票日："+ dataDay);
   //
-  // await page.waitForSelector("#train_date")  // 等待日期选择框加载完成
+  // await page.waitForSelector("#train_date",{timeout: 0})  // 等待日期选择框加载完成
   // // await sleep(1000)
   //
   // console.log("选择 "+ dataDay + " 号")
@@ -200,7 +200,7 @@ const scrapeMedium = async () => {
   //  * @author Wish
   //  * @date 2019/12/24
   // */
-  // await page.waitForSelector("#queryLeftTable > tr")
+  // await page.waitForSelector("#queryLeftTable > tr",{timeout: 0})
   // await sleep(1000)
   //
   // console.log("订票车次："+ load.ticketNumber);
@@ -221,7 +221,7 @@ const scrapeMedium = async () => {
   //   await page.click('#queryLeftTable > tr:nth-child('+ (ticketIndex + 1) +') > td:last-child > a')
   // }
   //
-  // await page.waitForSelector("#normal_passenger_id > li")
+  // await page.waitForSelector("#normal_passenger_id > li",{timeout: 0})
   // await sleep(1000)
   //
   // console.log("获取联系人信息");
@@ -254,14 +254,10 @@ const scrapeMedium = async () => {
   //           console.log('444');
   //         }
   //         console.log('222');
-  //
+  //         console.log('找到啦！' + contactList[index].toString() + " === " + item.userName)
   //       }
-  //       console.log('找到啦！' + contactList[index].toString() + " === " + item.userName)
   //     }
   //   }
-  // console.log('111');
-  // // }
-  // // await forLoop()
   //
   // await sleep(1000)
   //
@@ -304,9 +300,9 @@ const scrapeMedium = async () => {
   //   await page.click("#submitOrder_id")
   //   console.log("按钮，开始提交");
   // }
-  //
-  //
-  // await page.waitForSelector("#content_checkticketinfo_id") // 等待核对信息弹窗
+
+
+  // await page.waitForSelector("#content_checkticketinfo_id",{timeout: 0}) // 等待核对信息弹窗
   // console.log("等待核对信息弹窗");
   //
   // await sleep(1000)
@@ -315,7 +311,7 @@ const scrapeMedium = async () => {
   // await page.click("#qr_submit_id")  // 确认信息，关闭核对弹窗
 
   console.log("等待订单信息表格");
-  await page.waitForSelector("#table_list")
+  await page.waitForSelector("#table_list",{timeout: 0})
 
   const messageDialog = await page.$("#ins_f_close")  // 判断是否有提示框
   if(messageDialog){
@@ -342,70 +338,49 @@ const scrapeMedium = async () => {
   let title = await newPage.title()
   console.log('切换到：'+title);
 
-//   await sleep(3000)
-//   console.log("请手动选择支付宝支付");
+
+  await sleep(2000)
+
   console.log("前往支付宝付款页面");
 
-  await sleep(5000)
-
-  // await page.click('body > div:nth-child(2) > div:nth-child(2) > div > form > div:nth-child(19) > div > img')
-  // document.getElementsByName("bankId")[0].value='33000010';
-  // console.log(document.getElementsByName("bankId")[0].value);
-  // document.getElementsByName("businessType")[0].value='1';
-  // document.getElementsByName("myform")[0].submit();
-  // await page.exposeFunction('formsubmit', () => {
-  //
-  //
-  //   // document.getElementsByName("bankId")[0].value='33000010';
-  //   // document.getElementsByName("businessType")[0].value='1';
-  //   // document.getElementsByName("myform")[0].submit();
-  // });
-  gotoToPay()
+  await gotoToPay()
 
   async function gotoToPay(){
        try {
-         // await page.evaluateHandle('formsubmit','33000010','1')
-         // await page.window.formsubmit('33000010','1')
          const executionContext = await newPage.mainFrame().executionContext()
-         console.log(executionContext)
          await   executionContext.evaluate(()=>{
-           console.log(window)
            window.formsubmit('33000010','1')
          })
-         // page.evaluate(() => {
-         //
-         // })
+
        }catch (e) {
          console.log(e)
        }
   }
 
-  // await page.type('body > div:nth-child(2) > div:nth-child(2) > div > form > input[type=hidden]:nth-child(9)','33000010')
-  // await page.type('body > div:nth-child(2) > div:nth-child(2) > div > form > input[type=hidden]:nth-child(10)','1')
-
-
-  // console.log("等待付款二维码加载");
-  // await page.waitForSelector("#J_qrPayArea > div:nth-child(1) > div:nth-child(3) > div:nth-child(2) > canvas")
-
+  await sleep(5000)
   console.log("等待扫码");
-  await page.waitForSelector("#J_qrPayArea > div.qrcode-foot > div.mi-notice-new.mi-notice-new-success.mi-notice-new-titleonly.qrcode-notice.fn-hide > div > div")
-  await page.waitForSelector("#J_tLoginId")
-  //
-  await sleep(500)
 
-  console.log("获取支付宝账号");
-  const aliPayId = page.$$eval("#J_tLoginId", input => input.value)
-  console.log(aliPayId);
-  //
-  // console.log("等待支付成功");
-  // await page.waitForSelector()
-  //
-  // console.log("点击支付成功按钮");
 
-   // 温馨提示弹窗 #notifyAlert
+
+  await sleep(5000)
+  let aliPayId
+  async function waitPay(){
+    try {
+      const executionContext = await newPage.mainFrame().executionContext()
+       aliPayId = await executionContext.evaluate(()=>{
+         return document.getElementById('J_tLoginId').value
+      })
+    }catch (e) {
+      console.log(e)
+    }
+  }
+
+
+   await waitPay()
+
 
   console.log('温馨提示弹窗');
-  await page.waitForSelector('#notifyAlert')
+  await page.waitForSelector('#notifyAlert',{timeout: 0})
 
   await sleep(800)
 
@@ -427,48 +402,58 @@ const scrapeMedium = async () => {
   // console.log("等待乘客信息数据渲染");
   // await page.waitForSelector()
 
-  let uploadDataInfo = {}
-  let uploadUserList = []
-  let uploadUserInfo = {}
+  await uploadData()
 
-  uploadDataInfo['order_sn'] = load.info[0].order_sn
-  uploadDataInfo['token'] = load.info[0].token
-  uploadDataInfo['routeId'] = load.info[0].route_id
-  uploadDataInfo['departure'] = load.start
-  uploadDataInfo['arrival'] = load.end
-  uploadDataInfo['riding_time'] = load.time
-  uploadDataInfo['ticket_check'] = payTicketInfo[0].slice(payTicketInfo[0].indexOf('检票口')+ 1)
-  uploadDataInfo['trips_number'] = load.ticketNumber
+  async function uploadData(){
+    try {
+      let uploadDataInfo = {}
+      let uploadUserList = []
+      let uploadUserInfo = {}
 
-  console.log(uploadDataInfo);
+      uploadDataInfo['order_sn'] = load.info[0].order_sn
+      uploadDataInfo['token'] = load.info[0].token
+      uploadDataInfo['routeId'] = load.info[0].route_id
+      uploadDataInfo['departure'] = load.start
+      uploadDataInfo['arrival'] = load.end
+      uploadDataInfo['riding_time'] = load.time
+      uploadDataInfo['ticket_check'] = payTicketInfo[0].slice(payTicketInfo[0].indexOf('检票口')+ 1)
+      uploadDataInfo['trips_number'] = load.ticketNumber
 
-  payUserInfo.forEach((res,index) =>{
-    if(index !== 0){
-      let newRes = res.splice('\n')
-      console.log(newRes);
-      for (let item of load.info) {
-        if(newRes[1] === item.userName){
-          uploadUserInfo['passenger_id'] = item.passenger_id  // 乘客ID
+      console.log(uploadDataInfo);
+
+      payUserInfo.forEach((res,index) =>{
+        if(index !== 0){
+          let newRes = res.splice('\n')
+          console.log(newRes);
+          for (let item of load.info) {
+            if(newRes[1] === item.userName){
+              uploadUserInfo['passenger_id'] = item.passenger_id  // 乘客ID
+            }
+          }
+          uploadUserInfo['name'] = newRes[1]  // 乘客姓名
+          uploadUserInfo['r_order_sn'] = orderId[0]  // 12306订单号
+          uploadUserInfo['seat_number'] = newRes[6]+'车'+newRes[7] // 席位号
+          uploadUserInfo['ticket_species'] = newRes[4]  // 票种
+          uploadUserInfo['fwName'] = newRes[5]  // 席别
+          uploadUserInfo['ticket_price'] = newRes[8]  // 票价
+          uploadUserInfo['ticket_status'] = 1  // 出票状态
+          uploadUserInfo['ticketing_time'] = payTicketInfo.slice(0,10)  // 出票时间
+          uploadUserInfo['payment_account'] = aliPayId  // 支付账号
+          uploadUserInfo['payment_flow_number'] = ''  // 支付流水号
+          uploadUserList.push(uploadUserInfo)
         }
-      }
-      uploadUserInfo['name'] = newRes[1]  // 乘客姓名
-      uploadUserInfo['r_order_sn'] = orderId[0]  // 12306订单号
-      uploadUserInfo['seat_number'] = newRes[6]+'车'+newRes[7] // 席位号
-      uploadUserInfo['ticket_species'] = newRes[4]  // 票种
-      uploadUserInfo['fwName'] = newRes[5]  // 席别
-      uploadUserInfo['ticket_price'] = newRes[8]  // 票价
-      uploadUserInfo['ticket_status'] = 1  // 出票状态
-      uploadUserInfo['ticketing_time'] = payTicketInfo.slice(0,10)  // 出票时间
-      uploadUserInfo['payment_account'] = ''  // 支付账号
-      uploadUserInfo['payment_flow_number'] = ''  // 支付流水号
-      uploadUserList.push(uploadUserInfo)
+      })
+
+      uploadDataInfo['info'] = uploadUserList
+
+
+      console.log(uploadDataInfo);
+    }catch (e) {
+      console.log(e)
     }
-  })
-
-  uploadDataInfo['info'] = uploadUserList
+  }
 
 
-  console.log(uploadDataInfo);
 
   const result = await page.evaluate(() => {
     // 组装用户数据
