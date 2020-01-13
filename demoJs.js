@@ -4,7 +4,6 @@ const axios = require('axios');
 
 let appData = require('./ticketData')
 
-let chromeAddress = require('./chromeAddress')
 const fs = require("fs")
 
 function sleep(ms) {

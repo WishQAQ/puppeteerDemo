@@ -27,109 +27,106 @@ app.all('*',function (req, res, next) {
   }
 });
 
-// app.get("/")
+let store=JSON.parse(fs.readFileSync('./store.json').toString())
 
-// let store=JSON.parse(fs.readFileSync('./store.json').toString())
+app.get("/tickets",(req,res)=>{
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify(store.tickets));
+})
 
-// app.get("/tickets",(req,res)=>{
-//   res.setHeader('Content-Type', 'application/json');
-//   res.end(JSON.stringify(store.tickets));
-// })
-app.post('/post', function (req, res) {
-  let params = req.body
-  // store.tickets.push(params);
-  // fs.writeFile('./store.json',JSON.stringify(store),()=>{})
+app.get('/removeStore')
 
-  console.log('当前购票路线：'+ params.time + ' ' + params.start + ' - ' + params.end + ' ' + params.ticketNumber);
-  console.log('当前购票乘客：');
-  params.info.forEach((userInfo,index) =>{
-    console.log((index+1)+'：'+ userInfo.userName + ' ' + userInfo.userId + ' ' + userInfo.userType);
-  })
+app.post('/post',(req,res) =>{
+    let params = req.body
+    // store.tickets.push(params);
+    // console.log('当前购票路线：'+ params.time + ' ' + params.start + ' - ' + params.end + ' ' + params.ticketNumber);
+    // console.log('当前购票乘客：');
+    // params.info.forEach((userInfo,index) =>{
+    //   console.log((index+1)+'：'+ userInfo.userName + ' ' + userInfo.userId + ' ' + userInfo.userType);
+    // })
 
-  appData.params = params
-  // module.exports.params = params;
+    appData.params = params
+    // module.exports.params = params;
 
-  let data = {
-    account: params.userAcc,
-    password: params.userPas
-  }
+    let data = {
+      account: params.userAcc,
+      password: params.userPas
+    }
 
-  console.log('当前客户端账号：'+ params.userAcc)
-  console.log('当前客户端密码：'+ params.userPas)
+    // console.log('当前客户端账号：'+ params.userAcc)
+    // console.log('当前客户端密码：'+ params.userPas)
 
-  axios.post('https://tohcp.cn/account/login',data)
-      .then(val =>{
-        if(val.data.code === 0){
-          console.log('登录客户端账号成功');
-          axios.interceptors.request.use(function (config) {    // 这里的config包含每次请求的内容
-            config.headers['csrf'] = val.data.result.csrf;
-            return config;
-          }, function (err) {
-            return Promise.reject(err);
-          });
-
-          setTimeout(() =>{
-
-            let ticketData = {
-              account: params.account,
-              password: params.password
-            }
-
-            console.log('当前12306账号：'+ params.account)
-            console.log('当前12306密码：'+ params.password)
-
+    axios.post('https://tohcp.cn/account/login',data)
+        .then(val =>{
+          if(val.data.code === 0){
             axios.interceptors.request.use(function (config) {    // 这里的config包含每次请求的内容
-              config.headers['a'] = params.account;
-              config.headers['p'] = params.password;
               config.headers['csrf'] = val.data.result.csrf;
               return config;
             }, function (err) {
               return Promise.reject(err);
             });
 
-            axios.post('https://tohcp.cn/plug/login',ticketData).then(val =>{
-              if(val.data.code === 0){
-                console.log('12306账号后台成功，请勿修改12306登录页面账号');
-                const mediumArticles = new Promise((resolve, reject) => {
-                  scraper
-                      .scrapeMedium()
-                      .then(data => {
-                        resolve(data)
+            setTimeout(() =>{
 
-                      })
-                      .catch(err => reject('Medium scrape failed'))
-                })
-              }else {
-                console.log(val.data.msg);
+              let ticketData = {
+                account: params.account,
+                password: params.password
               }
-            }).catch(() =>{})
-          },800)
 
-        }else {
-          console.log(val.data.msg);
-        }
-      })
-      .catch(() =>{
+              // console.log('当前12306账号：'+ params.account)
+              // console.log('当前12306密码：'+ params.password)
 
-      })
+              axios.interceptors.request.use(function (config) {    // 这里的config包含每次请求的内容
+                config.headers['a'] = params.account;
+                config.headers['p'] = params.password;
+                config.headers['csrf'] = val.data.result.csrf;
+                return config;
+              }, function (err) {
+                return Promise.reject(err);
+              });
+
+
+              axios.post('https://tohcp.cn/plug/login',ticketData).then(val =>{
+                if(val.data.code === 0){
+
+                  store.tickets = params;
+                  fs.writeFile('./store.json',JSON.stringify(store),()=>{})
+                }else {
+                  console.log(val.data.msg);
+                }
+              }).catch(() =>{})
+            },800)
+
+          }else {
+            console.log(val.data.msg);
+          }
+        })
+        .catch(e => console.log(e))
 
     res.send(200);
 
+  })
+
+app.post('/beginAutomatic',(req,res) =>{
+  const mediumArticles = new Promise((resolve, reject) => {
+    scraper
+        .scrapeMedium()
+        .then(data => {
+          resolve(data)
+        })
+        .catch(err => reject('Medium scrape failed'))
+  })
 })
 
-// app.get('/', (req, res) => {
-//
-//   const mediumArticles = new Promise((resolve, reject) => {
-//     scraper
-//         .scrapeMedium()
-//         .then(data => {
-//           resolve(data)
-//         })
-//         .catch(err => reject('Medium scrape failed'))
-//   })
-//
-//
+// app.post('/exit',(req,res) =>{
+//   let data = req.body
+//   axios.post('https://tohcp.cn/plug/quit',data)
+//       .then(res =>{
+//         console.log(res);
+//       })
+//       .catch(e => console.log(e))
+// })
 
 
-app.listen(port, () => console.log(`puppeteer 购票开始!`))
+app.listen(port, () => console.log(`前往ToHcp购票控制中心 http://127.0.0.1:3000 `))
 
