@@ -37,7 +37,7 @@ app.get("/tickets",(req,res)=>{
 app.get('/removeStore')
 
 app.post('/post',(req,res) =>{
-    let params = req.body
+  let params = req.body
     // store.tickets.push(params);
     // console.log('当前购票路线：'+ params.time + ' ' + params.start + ' - ' + params.end + ' ' + params.ticketNumber);
     // console.log('当前购票乘客：');
@@ -45,7 +45,6 @@ app.post('/post',(req,res) =>{
     //   console.log((index+1)+'：'+ userInfo.userName + ' ' + userInfo.userId + ' ' + userInfo.userType);
     // })
 
-    appData.params = params
     // module.exports.params = params;
 
     let data = {
@@ -88,7 +87,7 @@ app.post('/post',(req,res) =>{
 
               axios.post('https://tohcp.cn/plug/login',ticketData).then(val =>{
                 if(val.data.code === 0){
-
+                  console.log('后台登录成功');
                   store.tickets = params;
                   fs.writeFile('./store.json',JSON.stringify(store),()=>{})
                 }else {
@@ -107,7 +106,14 @@ app.post('/post',(req,res) =>{
 
   })
 
+
+/**
+ * @Description: 自动购票
+ * @author Wish
+ * @date 2020/1/14
+*/
 app.post('/beginAutomatic',(req,res) =>{
+  appData.params = req.body
   const mediumArticles = new Promise((resolve, reject) => {
     scraper
         .scrapeMedium()
@@ -116,6 +122,19 @@ app.post('/beginAutomatic',(req,res) =>{
         })
         .catch(err => reject('Medium scrape failed'))
   })
+  res.send(200);
+})
+
+/**
+ * @Description: 自动登录
+ * @author Wish
+ * @date 2020/1/14
+ */
+app.post('/beginAutoLogin',(req,res) =>{
+  appData.params = req.body
+
+
+  res.send(200);
 })
 
 // app.post('/exit',(req,res) =>{

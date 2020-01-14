@@ -51,14 +51,21 @@ const scrapeMedium = async () => {
   console.log("选择账号登录");
   await page.click("body > div.login-panel > div.login-box > ul > li.login-hd-account"); //直接操作dom选择器，是不是很方便
 
-  await sleep(1000);
-  console.log("输入账号：" + load.account);
-  await page.type('#J-userName', load.account, {delay: 20})
-  console.log("输入密码：" + load.password);
-  await page.type('#J-password', load.password, {delay: 20})
+  async function login(){
+    try {
+      console.log("输入账号：" + load.account);
+      await page.type('#J-userName', load.account, {delay: 20})
+      console.log("输入密码：" + load.password);
+      await page.type('#J-password', load.password, {delay: 20})
 
-  console.log("等待登录");
-  await sleep(1000);
+      console.log("等待登录");
+      await sleep(1000);
+    }catch (e) {
+      console.log(e);
+    }
+  }
+
+  await login()
 
   /**
    * @Description: 前往联系人界面
@@ -74,61 +81,60 @@ const scrapeMedium = async () => {
   await page.click("#cylianxiren")
 
   await sleep(1000)
-  let addUserIndex = 0
 
-      for (let item in load.info){
-        await sleep(1000)
-        console.log("点击添加联系人");
+  async function addUserInfo(){
+    let addUserIndex = 0
 
-        await page.waitForSelector("#add_contact",{timeout: 0})
+    for (let item in load.info){
+      await sleep(1000)
+      console.log("点击添加联系人");
 
-        await page.click("#add_contact")
+      await page.waitForSelector("#add_contact",{timeout: 0})
 
-        await sleep(1000)
+      await page.click("#add_contact")
 
-        await page.waitForSelector("#name")  // 等待姓名输入框加载
+      await sleep(1000)
 
-        await sleep(1000)
+      await page.waitForSelector("#name")  // 等待姓名输入框加载
 
-        await page.type("#name", load.info[addUserIndex].userName) // 输入姓名
+      await sleep(1000)
 
-        await page.type("#cardCode", load.info[addUserIndex].userId)  // 输入身份证号
+      await page.type("#name", load.info[addUserIndex].userName) // 输入姓名
 
-        let sexNum = load.info[addUserIndex].userId.substr(16,1)  // 获取身份证第17位，奇数为男性偶数为女性
-        if(sexNum % 2 !== 0){
-          await page.click("#sex_code_div > label:nth-child(1)")
-        }else {
-          await page.click("#sex_code_div > label:nth-child(2)")
-        }
+      await page.type("#cardCode", load.info[addUserIndex].userId)  // 输入身份证号
 
-        if(load.info[addUserIndex].userType === '儿童票'){
-          await page.click("#js-minHeight > div:nth-child(3) > div.form-list > div > div.form-bd > div")
-          await page.click("#passenger_type_list > li:nth-child(2)")
-          await page.click("#save_btn")
-        }else {
-          await page.click("#save_btn")
-        }
-
-        await sleep(1000)
-        const errorDialog =  page.$(".modal .modal-close")
-        if(errorDialog){  // 判断是否有警告弹窗框
-          await page.click(".modal-close")
-        }
-
-        await sleep(1000)
-        addUserIndex  = addUserIndex + 1
-
-        console.log(addUserIndex, load.info.length);
-        await page.click("#cylianxiren")
+      let sexNum = load.info[addUserIndex].userId.substr(16,1)  // 获取身份证第17位，奇数为男性偶数为女性
+      if(sexNum % 2 !== 0){
+        await page.click("#sex_code_div > label:nth-child(1)")
+      }else {
+        await page.click("#sex_code_div > label:nth-child(2)")
       }
 
+      if(load.info[addUserIndex].userType === '儿童票'){
+        await page.click("#js-minHeight > div:nth-child(3) > div.form-list > div > div.form-bd > div")
+        await page.click("#passenger_type_list > li:nth-child(2)")
+        await page.click("#save_btn")
+      }else {
+        await page.click("#save_btn")
+      }
+
+      await sleep(1000)
+      const errorDialog =  page.$(".modal .modal-close")
+      if(errorDialog){  // 判断是否有警告弹窗框
+        await page.click(".modal-close")
+      }
+
+      await sleep(1000)
+      addUserIndex  = addUserIndex + 1
+
+      console.log(addUserIndex, load.info.length);
+      await page.click("#cylianxiren")
+    }
+
+  }
 
 
-
-
-
-
-
+  await addUserInfo()
 
 
 
@@ -153,102 +159,108 @@ const scrapeMedium = async () => {
   await page.waitForSelector('#fromStationText', {timeout: 0});  // 等待输入框加载完成
   await sleep(1000)
 
-  console.log("选中出发地输入框");
-  const start_input = await page.$('#fromStationText')  // 出发地输入框
-  await start_input.click()
-  await sleep(300)
-  console.log("输入出发地：" + load.start);
-  await start_input.type(load.start)  // 输入出发地
-  await start_input.type(" ")  // 激活对应城市下拉选择框 添加一个空格
-  await page.keyboard.press('Backspace');  // 删除一个空格
-  await page.waitForSelector('#panel_cities>div', {timeout: 0})  // 等待下拉选择框加载
-  let cityList = await page.$$eval('#panel_cities>div .ralign', res => res.map(ele => ele.innerText))  // 获取激活选择框中的城市列表
-  let listIndex = cityList.map((res, index) => {  // 遍历城市列表获取城市下标
-    if (res === load.start) {
-      return index
+  async function selectTicket(){
+    console.log("选中出发地输入框");
+    const start_input = await page.$('#fromStationText')  // 出发地输入框
+    await start_input.click()
+    await sleep(300)
+    console.log("输入出发地：" + load.start);
+    await start_input.type(load.start)  // 输入出发地
+    await start_input.type(" ")  // 激活对应城市下拉选择框 添加一个空格
+    await page.keyboard.press('Backspace');  // 删除一个空格
+    await page.waitForSelector('#panel_cities>div', {timeout: 0})  // 等待下拉选择框加载
+    let cityList = await page.$$eval('#panel_cities>div .ralign', res => res.map(ele => ele.innerText))  // 获取激活选择框中的城市列表
+    let listIndex = cityList.map((res, index) => {  // 遍历城市列表获取城市下标
+      if (res === load.start) {
+        return index
+      }
+    })
+    let startIndex = parseInt(String(listIndex).replace(/[^0-9]/ig, ""))  // 处理下标
+    if (startIndex < 1) {  // 增加判断，因为找不到nth-child(0)的元素，当下标小于1时，选择第一个元素
+      await page.click("#panel_cities>div:first-child")  // 选中对应城市
+    } else {
+      await page.click("#panel_cities>div:nth-child(" + startIndex + ")")  // 选中对应城市
     }
-  })
-  let startIndex = parseInt(String(listIndex).replace(/[^0-9]/ig, ""))  // 处理下标
-  if (startIndex < 1) {  // 增加判断，因为找不到nth-child(0)的元素，当下标小于1时，选择第一个元素
-    await page.click("#panel_cities>div:first-child")  // 选中对应城市
-  } else {
-    await page.click("#panel_cities>div:nth-child(" + startIndex + ")")  // 选中对应城市
-  }
 
-  // await sleep(1000)
-  console.log("选中到达地输入框");
-  const end_input = await page.$('#toStationText')
-  await end_input.click()
-  await sleep(100)
-  console.log("输入到达地：" + load.end);
-  await end_input.type(load.end)
-  await end_input.type(" ")  // 激活对应城市下拉选择框 添加一个空格
-  await page.keyboard.press('Backspace');  // 删除一个空格
-  await page.waitForSelector('#panel_cities>div', {timeout: 0})  // 等待下拉选择框加载
-  cityList = await page.$$eval('#panel_cities>div .ralign', res => res.map(ele => ele.innerText))  // 获取激活选择框中的城市列表
-  listIndex = cityList.map((res, index) => {  // 遍历城市列表获取城市下标
-    if (res === load.end) {
-      return index
+    // await sleep(1000)
+    console.log("选中到达地输入框");
+    const end_input = await page.$('#toStationText')
+    await end_input.click()
+    await sleep(100)
+    console.log("输入到达地：" + load.end);
+    await end_input.type(load.end)
+    await end_input.type(" ")  // 激活对应城市下拉选择框 添加一个空格
+    await page.keyboard.press('Backspace');  // 删除一个空格
+    await page.waitForSelector('#panel_cities>div', {timeout: 0})  // 等待下拉选择框加载
+    cityList = await page.$$eval('#panel_cities>div .ralign', res => res.map(ele => ele.innerText))  // 获取激活选择框中的城市列表
+    listIndex = cityList.map((res, index) => {  // 遍历城市列表获取城市下标
+      if (res === load.end) {
+        return index
+      }
+    })
+    let endIndex = parseInt(String(listIndex).replace(/[^0-9]/ig, ""))  // 处理下标
+    if (endIndex < 1) {
+      await page.click("#panel_cities>div:first-child")  // 选中对应城市
+    } else {
+      await page.click("#panel_cities>div:nth-child(" + endIndex + ")")  // 选中对应城市
     }
-  })
-  let endIndex = parseInt(String(listIndex).replace(/[^0-9]/ig, ""))  // 处理下标
-  if (endIndex < 1) {
-    await page.click("#panel_cities>div:first-child")  // 选中对应城市
-  } else {
-    await page.click("#panel_cities>div:nth-child(" + endIndex + ")")  // 选中对应城市
-  }
 
 
-  // 获取当前月份
-  let date = new Date;
-  let month = date.getMonth() + 1;
-  month = (month < 10 ? "0" + month : month);
+    // 获取当前月份
+    let date = new Date;
+    let month = date.getMonth() + 1;
+    month = (month < 10 ? "0" + month : month);
 
-  let thisMonth = (month.toString());  // 当前月份
-  let dataMonth = load.time.split('-')[1]
-  let dataDay = load.time.split('-')[2]
+    let thisMonth = (month.toString());  // 当前月份
+    let dataMonth = load.time.split('-')[1]
+    let dataDay = load.time.split('-')[2]
 
-  console.log("当前月：" + thisMonth + "，订票月：" + dataMonth + "，订票日：" + dataDay);
+    console.log("当前月：" + thisMonth + "，订票月：" + dataMonth + "，订票日：" + dataDay);
 
-  await page.waitForSelector("#train_date", {timeout: 0})  // 等待日期选择框加载完成
-  // await sleep(1000)
+    await page.waitForSelector("#train_date", {timeout: 0})  // 等待日期选择框加载完成
+    // await sleep(1000)
 
-  console.log("选择 " + dataDay + " 号")
-  await page.click("#train_date")  // 点击日期选择框
+    console.log("选择 " + dataDay + " 号")
+    await page.click("#train_date")  // 点击日期选择框
 
-  if (thisMonth === dataMonth) {
-    await page.click("body > div.cal-wrap > div:nth-child(1) > div.cal-cm > div:nth-child(" + dataDay + ")")
-  } else {
-    await page.click("body > div.cal-wrap > div.cal.cal-right > div.cal-cm > div:nth-child(" + dataDay + ")")
-  }
-
-  await page.click("#query_ticket")  // 点击搜索按钮
-
-  /**
-   * @Description: 选择车次
-   * @author Wish
-   * @date 2019/12/24
-   */
-  await page.waitForSelector("#queryLeftTable > tr", {timeout: 0})
-  await sleep(1000)
-
-  console.log("订票车次：" + load.ticketNumber);
-
-  const ticketTable = await page.$$eval('#queryLeftTable > tr', res => res.map(ele => ele.innerText)) // 获取路线车次表格
-
-  let ticketIndex = ticketTable.map((res, index) => {
-    if (res.indexOf(load.ticketNumber) !== -1) {
-      return index
+    if (thisMonth === dataMonth) {
+      await page.click("body > div.cal-wrap > div:nth-child(1) > div.cal-cm > div:nth-child(" + dataDay + ")")
+    } else {
+      await page.click("body > div.cal-wrap > div.cal.cal-right > div.cal-cm > div:nth-child(" + dataDay + ")")
     }
-  })
 
-  ticketIndex = parseInt(String(ticketIndex).replace(/[^0-9]/ig, ""))
-  // console.log(page.$$eval('#queryLeftTable > tr:nth-child(' + ticketIndex + ') > td:last-child > a').innerText);
-  if (ticketIndex < 1) {
-    await page.click("#queryLeftTable > tr:first-child > td:last-child > a")
-  } else {
-    await page.click('#queryLeftTable > tr:nth-child(' + (ticketIndex + 1) + ') > td:last-child > a')
+    await page.click("#query_ticket")  // 点击搜索按钮
+
+    /**
+     * @Description: 选择车次
+     * @author Wish
+     * @date 2019/12/24
+     */
+    await page.waitForSelector("#queryLeftTable > tr", {timeout: 0})
+    await sleep(1000)
+
+    console.log("订票车次：" + load.ticketNumber);
+
+    const ticketTable = await page.$$eval('#queryLeftTable > tr', res => res.map(ele => ele.innerText)) // 获取路线车次表格
+
+    let ticketIndex = ticketTable.map((res, index) => {
+      if (res.indexOf(load.ticketNumber) !== -1) {
+        return index
+      }
+    })
+
+    ticketIndex = parseInt(String(ticketIndex).replace(/[^0-9]/ig, ""))
+    // console.log(page.$$eval('#queryLeftTable > tr:nth-child(' + ticketIndex + ') > td:last-child > a').innerText);
+    if (ticketIndex < 1) {
+      await page.click("#queryLeftTable > tr:first-child > td:last-child > a")
+    } else {
+      await page.click('#queryLeftTable > tr:nth-child(' + (ticketIndex + 1) + ') > td:last-child > a')
+    }
   }
+
+  await selectTicket()
+
+
 
   await page.waitForSelector("#normal_passenger_id > li", {timeout: 0})
   await sleep(1000)
@@ -418,28 +430,30 @@ const scrapeMedium = async () => {
 
   await page.click('#goto_notifyAlert')
 
-  // 订单号
-  let orderId = await page.$$eval('body > div.content > div.t-succ > div > div > span', res => res.map(ele => ele.innerText))
-  console.log(orderId);
-
-  // 车次信息
-  let payTicketInfo = await page.$$eval('body > div.content > div.layout.b-info > div.lay-bd > div.info', res => res.map(ele => ele.innerText))
-  console.log(payTicketInfo);
-
-  // 乘客信息
-  let payUserInfo = await page.$$eval('body > div.content > div.layout.b-info > div.lay-bd > table > tbody > tr', res => res.map(ele => ele.innerText))
-  console.log(payUserInfo);
-
-
-  // console.log("等待乘客信息数据渲染");
-  // await page.waitForSelector()
-  let uploadDataInfo = {}
-  let uploadUserList = []
-  let uploadUserInfo = {}
   await uploadData()
 
   async function uploadData() {
     try {
+
+      // 订单号
+      let orderId = await page.$$eval('body > div.content > div.t-succ > div > div > span', res => res.map(ele => ele.innerText))
+      console.log(orderId);
+
+      // 车次信息
+      let payTicketInfo = await page.$$eval('body > div.content > div.layout.b-info > div.lay-bd > div.info', res => res.map(ele => ele.innerText))
+      console.log(payTicketInfo);
+
+      // 乘客信息
+      let payUserInfo = await page.$$eval('body > div.content > div.layout.b-info > div.lay-bd > table > tbody > tr', res => res.map(ele => ele.innerText))
+      console.log(payUserInfo);
+
+
+      // console.log("等待乘客信息数据渲染");
+      // await page.waitForSelector()
+      let uploadDataInfo = {}
+      let uploadUserList = []
+      let uploadUserInfo = {}
+
       uploadDataInfo['order_sn'] = load.info[0].order_sn  // 订单号
       uploadDataInfo['token'] = load.info[0].token  // 路线token
       uploadDataInfo['routeId'] = load.info[0].route_id  // 路线ID

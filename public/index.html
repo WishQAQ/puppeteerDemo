@@ -37,6 +37,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      margin-top: unset;
     }
     /*退出按钮*/
     h1>.ticket_btn{
@@ -298,12 +299,16 @@
         };
 
         /**
-         * @Description: 开始购票按钮
+         * @Description: 自动登录
          * @author Wish
          * @date 2020/1/13
         */
         document.getElementById('jumpWebsiteFront').onclick = function () {
-
+          axios({
+            method: 'post',
+            url: '/beginAutoLogin',
+            data: data
+          })
         };
 
         /**
