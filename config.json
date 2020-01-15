@@ -1,1 +1,6 @@
-{"chromeLocation": "C:\\Program Files (x86)\\Google\\Chrome Dev\\Application\\chrome.exe"}
+{
+  "chromeLocation": "C:\\Program Files (x86)\\Google\\Chrome Dev\\Application\\chrome.exe",
+  "browserWidth": "1280",
+  "browserHeight": "2200",
+  "loginPage": "https://kyfw.12306.cn/otn/resources/login.html"
+}

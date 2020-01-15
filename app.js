@@ -7,6 +7,7 @@ const app = express()
 const scraper = require('./demoJs')
 const fs  =require('fs')
 
+
 const port = 3000
 
 const bodyParser = require('body-parser');//解析,用req.body获取post参数
@@ -26,6 +27,18 @@ app.all('*',function (req, res, next) {
     next();
   }
 });
+let browserStore = {}
+
+async function getBrowswer(orderId){
+  let browser = browserStore[orderId]
+  if(browser){
+    return browser
+  }
+  browser = new scraper();
+  await browser.init()
+  browserStore[orderId] = browser
+  return browser
+}
 
 let store=JSON.parse(fs.readFileSync('./store.json').toString())
 
@@ -38,7 +51,7 @@ app.get('/removeStore')
 
 app.post('/post',(req,res) =>{
   let params = req.body
-    // store.tickets.push(params);
+  // store.tickets.push(params)
     // console.log('当前购票路线：'+ params.time + ' ' + params.start + ' - ' + params.end + ' ' + params.ticketNumber);
     // console.log('当前购票乘客：');
     // params.info.forEach((userInfo,index) =>{
@@ -114,15 +127,20 @@ app.post('/post',(req,res) =>{
 */
 app.post('/beginAutomatic',(req,res) =>{
   appData.params = req.body
-  const mediumArticles = new Promise((resolve, reject) => {
-    scraper
-        .scrapeMedium()
-        .then(data => {
-          resolve(data)
-        })
-        .catch(err => reject('Medium scrape failed'))
-  })
-  res.send(200);
+
+  // const mediumArticles = new Promise((resolve, reject) => {
+    // scraper
+    //     .scrapeMedium()
+    //     .then(data => {
+    //       resolve(data)
+    //     })
+    //     .catch(err => reject('Medium scrape failed'))
+    // getBrowswer(req.query.orderId).goTo(config.loginPage)
+  browser = new scraper()
+  browser.init(config.loginPage)
+  res.end(200)
+  // })
+  // res.send(200);
 })
 
 /**
@@ -133,8 +151,69 @@ app.post('/beginAutomatic',(req,res) =>{
 app.post('/beginAutoLogin',(req,res) =>{
   appData.params = req.body
 
+  browser = new scraper()
+  browser.toLogin(req.body)
+  res.end(200)
+  // res.send(200);
+})
 
-  res.send(200);
+let browser;
+
+
+/**
+ * @Description: 添加联系人
+ * @author Wish
+ * @date 2020/1/15
+*/
+app.post('/beginAutoAdd',(req,res)=>{
+  browser = new scraper()
+  browser.addUser(req.body)
+  res.end(200)
+})
+
+
+/**
+ * @Description: 查询选择车次
+ * @author Wish
+ * @date 2020/1/15
+*/
+app.post("/beginQueryTrips",(req,res)=>{
+  browser = new scraper()
+  browser.selectTicket(req.body)
+  res.end(200)
+})
+
+/**
+ * @Description: 选择乘客
+ * @author Wish
+ * @date 2020/1/15
+*/
+app.post("/beginSelectPassengers",(req,res)=>{
+  browser = new scraper()
+  browser.selectUser(req.body)
+  res.end(200)
+})
+
+/**
+ * @Description: 获取支付信息
+ * @author Wish
+ * @date 2020/1/15
+*/
+app.get("/beginPayInfo",(req,res)=>{
+  browser = new scraper()
+  browser.uploadPayInfo()
+  res.end(200)
+})
+
+/**
+ * @Description: 回填数据信息
+ * @author Wish
+ * @date 2020/1/15
+ */
+app.post("/beginSuccessInfo",(req,res)=>{
+  browser = new scraper()
+  browser.uploadSuccessInfo(req.body)
+  res.end(200)
 })
 
 // app.post('/exit',(req,res) =>{
@@ -148,4 +227,5 @@ app.post('/beginAutoLogin',(req,res) =>{
 
 
 app.listen(port, () => console.log(`前往ToHcp购票控制中心 http://127.0.0.1:3000 `))
+let config = JSON.parse(fs.readFileSync("./config.json").toString())
 

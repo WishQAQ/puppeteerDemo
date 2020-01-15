@@ -20,7 +20,10 @@
       list-style-type:none;
     }
     h3{
-      margin-top: unset;
+      margin: unset;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     section{
       box-sizing: border-box;
@@ -55,20 +58,49 @@
       color: #fff;
     }
 
+    #refresh{
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 15px;
+      border-radius: 4px;
+      border: 1px solid #525252;
+      padding: 5px 10px;
+    }
+
     /*卡片样式*/
     .ticket_card{
-      box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
       border-radius: 4px;
       border: 1px solid #ebeef5;
       background-color: #fff;
       color: #303133;
       padding: 15px;
+      transition: all .3s;
+    }
+    .ticket_card:hover{
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+    }
+    .ticket_card.active_card{
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
     }
     .ticket_card:not(:last-child){
       margin-bottom: 30px;
     }
 
+    .ticket_message.ticket_card{
+      margin-bottom: 10px;
+    }
+
     /*用户信息样式*/
+    .ticket_user_box{
+      /*display: flex;*/
+      /*align-items: flex-start;*/
+      /*justify-content: space-between;*/
+      margin-bottom: 30px;
+    }
+    .ticket_user_list.ticket_card{
+      /*width: 48%;*/
+    }
+
     .order_message_list{
       font-weight: bold;
     }
@@ -125,6 +157,7 @@
       font-size: 14px;
       border-radius: 4px;
       flex-shrink: 0;
+      min-width: 125px;
     }
     .ticket_btn:hover{
       color: #409eff;
@@ -147,33 +180,38 @@
 <!--    <span class="ticket_btn" id="exitApp">退出购票中心</span>-->
   </h1>
 
-  <div class="ticket_message ticket_card">
-    <h3>用户信息</h3>
-    <div class="order_message">
-      <div class="order_message_list">
-        <p class="title">登录账号：</p>
-        <span id="ticket_account"></span>
-      </div>
-      <div class="order_message_list">
-        <p class="title">12306账号：</p>
-        <span id="ticket_12306_account"></span>
-      </div>
-      <div class="order_message_list">
-        <p class="title">购票订单：</p>
-        <span id="ticket_id"></span>
-      </div>
-      <div class="order_message_list">
-        <p class="title">购票路线：</p>
-        <span id="ticket_route"></span>
-      </div>
-      <div class="order_message_list">
-        <p class="title">购票乘客信息：</p>
-        <ul id="ticket_user_box"></ul>
+  <div class="ticket_message ticket_card active_card">
+    <h3>用户信息 <span id="refresh">刷新数据</span></h3>
+  </div>
+
+  <div class="ticket_user_box">
+    <div class="ticket_user_list ticket_card">
+      <div class="order_message">
+        <div class="order_message_list">
+          <p class="title">登录账号：</p>
+          <span id="ticket_account"></span>
+        </div>
+        <div class="order_message_list">
+          <p class="title">12306账号：</p>
+          <span id="ticket_12306_account"></span>
+        </div>
+        <div class="order_message_list">
+          <p class="title">购票订单：</p>
+          <span id="ticket_id"></span>
+        </div>
+        <div class="order_message_list">
+          <p class="title">购票路线：</p>
+          <span id="ticket_route"></span>
+        </div>
+        <div class="order_message_list">
+          <p class="title">购票乘客信息：</p>
+          <ul id="ticket_user_box"></ul>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="ticket_message ticket_card">
+  <div class="ticket_message ticket_card active_card">
     <h3>控件操作</h3>
     <p class="option_title">控件在填写或执行过程中，请勿操作或点击该页面，可能会造成的影响：自动填写中断、自动操作中断、信息录入不全，如因错误操作导致控件停止，请根据当前情况使用下方按钮继续页面步骤</p>
     <div class="ticket_btn_box">
@@ -188,11 +226,6 @@
     </div>
 
     <div class="ticket_btn_box">
-      <div class="ticket_btn" id="jumpWebsiteFront">前往12306登录页</div>
-      <span class="btn_info">当点击前往12306登录页后，将启动 puppeteer 控件创建一个新的chrome标签页并前往12306登录页，控件将自动填写12306账号密码，请等待账号密码输入完成后再选择验证码</span>
-    </div>
-
-    <div class="ticket_btn_box">
       <div class="ticket_btn" id="writeAccount">填写账号密码</div>
       <span class="btn_info">当点击填写12306账号密码后，将自动填入12306账号密码，在填写过程中</span>
     </div>
@@ -203,8 +236,13 @@
     </div>
 
     <div class="ticket_btn_box">
-      <div class="ticket_btn" id="writeTicketInfo">预订车次</div>
+      <div class="ticket_btn" id="writeQueryTrips">预订车次</div>
       <span class="btn_info">当点击预订车次后，将自动前往车票页面开始自动查询乘车信息并自动点击预订</span>
+    </div>
+
+    <div class="ticket_btn_box">
+      <div class="ticket_btn" id="writeSelectPassengers">选择乘客</div>
+      <span class="btn_info">当点击选择乘客后，将从12306乘客列表中选择乘客信息已保存的乘客，如12306乘客列表中未出现需要选择的乘客，请返回12306首页点击添加联系人按钮进行自动添加</span>
     </div>
 
     <div class="ticket_btn_box">
@@ -217,10 +255,10 @@
       <span class="btn_info">当点击回填订单数据（支付成功页）后，将获取支付成功页的订单号，行程信息，乘客信息等并回填至后台数据库</span>
     </div>
 
-    <div class="ticket_btn_box">
-      <div class="ticket_btn" id="recordingUserInfo">回填订单数据（个人中心）</div>
-      <span class="btn_info">如遇支付成功页异常无法回填信息，请先前往个人中心选择无法正确回填的订单进入详情，再点击此按钮</span>
-    </div>
+<!--    <div class="ticket_btn_box">-->
+<!--      <div class="ticket_btn" id="recordingUserInfo">回填订单数据（个人中心）</div>-->
+<!--      <span class="btn_info">如遇支付成功页异常无法回填信息，请先前往个人中心选择无法正确回填的订单进入详情，再点击此按钮</span>-->
+<!--    </div>-->
 
   </div>
 </section>
@@ -269,6 +307,17 @@
               "</li>"
         }
 
+
+
+        /**
+         * @Description: 刷新数据
+         * @author Wish
+         * @date 2020/1/15
+        */
+        document.getElementById('refresh').onclick = function (){
+          location.reload();
+        }
+
         /**
          * @Description: 退出登录按钮
          * @author Wish
@@ -293,22 +342,9 @@
         document.getElementById('automaticPayTicket').onclick = function () {
           axios({
             method: 'post',
-            url: '/beginAutomatic',
+            url: '/beginAutomatic?orderId=12324',
             data: data
           });
-        };
-
-        /**
-         * @Description: 自动登录
-         * @author Wish
-         * @date 2020/1/13
-        */
-        document.getElementById('jumpWebsiteFront').onclick = function () {
-          axios({
-            method: 'post',
-            url: '/beginAutoLogin',
-            data: data
-          })
         };
 
         /**
@@ -317,8 +353,82 @@
          * @date 2020/1/13
         */
         document.getElementById('writeAccount').onclick = function () {
-
+          axios({
+            method: 'post',
+            url: '/beginAutoLogin',
+            data: data
+          })
         };
+
+
+        /**
+         * @Description: 添加联系人
+         * @author Wish
+         * @date 2020/1/13
+         */
+        document.getElementById('writeUserInfo').onclick = function () {
+          axios({
+            method: 'post',
+            url: '/beginAutoAdd',
+            data: data
+          })
+        };
+
+
+        /**
+         * @Description: 预订车次
+         * @author Wish
+         * @date 2020/1/13
+         */
+        document.getElementById('writeQueryTrips').onclick = function () {
+          axios({
+            method: 'post',
+            url: '/beginQueryTrips',
+            data: data
+          })
+        };
+
+        /**
+         * @Description: 选择乘客
+         * @author Wish
+         * @date 2020/1/13
+         */
+        document.getElementById('writeSelectPassengers').onclick = function () {
+          axios({
+            method: 'post',
+            url: '/beginSelectPassengers',
+            data: data
+          })
+        };
+
+
+        /**
+         * @Description: 获取支付信息
+         * @author Wish
+         * @date 2020/1/13
+         */
+        document.getElementById('recordingPayInfo').onclick = function () {
+          axios({
+            method: 'get',
+            url: '/beginPayInfo'
+          })
+        };
+
+        /**
+         * @Description: 回填订单信息
+         * @author Wish
+         * @date 2020/1/13
+         */
+        document.getElementById('recordingSuccessInfo').onclick = function () {
+          axios({
+            method: 'post',
+            url: '/beginSuccessInfo',
+            data: data
+          })
+        };
+
+
+
       }
     })
   })
