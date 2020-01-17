@@ -121,7 +121,7 @@ const scrapeMedium = async () => {
         await page.click("#save_btn")
       }
 
-      await sleep(1000)
+      await sleep(1500)
       const errorDialog =  page.$(".modal .modal-close")
       if(errorDialog){  // 判断是否有警告弹窗框
         await page.click(".modal-close")
@@ -569,7 +569,7 @@ class Demo{
      * @date 2019/12/24
      */
     console.log("选择账号登录");
-    await page.click("body > div.login-panel > div.login-box > ul > li.login-hd-account"); //直接操作dom选择器，是不是很方便
+    await page.click("body > div.login-panel > div.login-box > ul > li.login-hd-account");
 
     async function login(){
       try {
@@ -917,7 +917,7 @@ class Demo{
         console.log(e)
       }
     }
-    console.log("等待扫码，请尽快使用支付宝扫码功能");
+    console.log("等待扫码，请使用支付宝扫码，请勿立即付款，等待返回支付账号后再进行付款");
 
 
     await sleep(10000)
@@ -931,8 +931,6 @@ class Demo{
         serialNumber = await executionContext.evaluate(() => {
           return document.querySelector('#J-orderDetail > div > ul > li > table > tbody > tr:nth-child(2) > td').innerHTML
         })
-        console.log('支付宝账号：'+aliPayId);
-        console.log('支付流水号：'+serialNumber);
       } catch (e) {
         console.log(e)
         await sleep(5000)
@@ -940,6 +938,9 @@ class Demo{
       }
     }
     await waitPay()
+
+    console.log('支付宝账号：'+aliPayId);
+    console.log('支付流水号：'+serialNumber);
 
     console.log('获取支付宝账号：'+ aliPayId)
 
@@ -952,6 +953,8 @@ class Demo{
     await sleep(800)
 
     await page.click('#goto_notifyAlert')
+
+    console.log('开始回填信息');
 
     await uploadData()
 
@@ -980,13 +983,14 @@ class Demo{
         uploadDataInfo['order_sn'] = load.info[0].order_sn  // 订单号
         uploadDataInfo['token'] = load.info[0].token  // 路线token
         uploadDataInfo['routeId'] = load.info[0].route_id  // 路线ID
-        uploadDataInfo['departure'] = load.start  // 发站
+        uploadDataInfo['departure'] = await page.$eval('body > div.content > div.layout.b-info > div.lay-bd > div.info > strong:nth-child(4)',res => res.innerText)  // 发站
         uploadDataInfo['drive_time'] = await page.$eval('body > div.content > div.layout.b-info > div.lay-bd > div.info > strong:nth-child(5) > span:nth-child(1)',res => res.innerText) // 发站时间
-        uploadDataInfo['arrival'] = load.end  // 到站
+        uploadDataInfo['arrival'] = await page.$eval('body > div.content > div.layout.b-info > div.lay-bd > div.info > strong:nth-child(5) > span:nth-child(2)',res => res.innerText)  // 到站
         uploadDataInfo['arrival_time'] = await page.$eval('body > div.content > div.layout.b-info > div.lay-bd > div.info > span',res => res.innerText)  // 到站时间
-        uploadDataInfo['riding_time'] = load.time  // 乘车时间
+
+        uploadDataInfo['riding_time'] = await page.$eval('body > div.content > div.layout.b-info > div.lay-bd > div.info > strong:nth-child(1)',res => res.innerText)  // 乘车时间
         uploadDataInfo['ticket_check'] = payTicketInfo[0].slice(payTicketInfo[0].indexOf('检票口') + 3)  // 检票口
-        uploadDataInfo['trips_number'] = load.ticketNumber  // 车次
+        uploadDataInfo['trips_number'] = await page.$eval('body > div.content > div.layout.b-info > div.lay-bd > div.info > strong:nth-child(3)',res => res.innerText)  // 车次
         console.log(uploadDataInfo);
         console.log(aliPayId);
 
@@ -1026,7 +1030,12 @@ class Demo{
 
         axios.post('https://tohcp.cn/plug/addBuyTicketsInfo/1', uploadDataInfo)
             .then(update => {
-              console.log(update);
+              if(update.data.code === 0){
+                console.log("数据回填成功");
+              }else {
+                console.log(update.data.msg)
+              }
+
             }).catch(e => {
           console.log(e);
         })
@@ -1409,8 +1418,7 @@ class Demo{
   */
   async uploadPayInfo(){
 
-
-      // aliPayId = await page.$eval('#J_tLoginId', res => res.value)
+    // aliPayId = await page.$eval('#J_tLoginId', res => res.value)
       // serialNumber = await page.$eval('#J-orderDetail > div > ul > li > table > tbody > tr:nth-child(2) > td', res => res.innerText)
 
     try {
@@ -1445,6 +1453,8 @@ class Demo{
    * @date 2020/1/15
   */
   async uploadSuccessInfo(load){
+    console.log('开始回填信息');
+
     await uploadData()
 
     async function uploadData() {
@@ -1472,16 +1482,16 @@ class Demo{
         uploadDataInfo['order_sn'] = load.info[0].order_sn  // 订单号
         uploadDataInfo['token'] = load.info[0].token  // 路线token
         uploadDataInfo['routeId'] = load.info[0].route_id  // 路线ID
-        uploadDataInfo['departure'] = load.start  // 发站
+        uploadDataInfo['departure'] = await page.$eval('body > div.content > div.layout.b-info > div.lay-bd > div.info > strong:nth-child(4)',res => res.innerText)  // 发站
         uploadDataInfo['drive_time'] = await page.$eval('body > div.content > div.layout.b-info > div.lay-bd > div.info > strong:nth-child(5) > span:nth-child(1)',res => res.innerText) // 发站时间
         // uploadDataInfo['drive_time'] = this.ticketInfo[4].slice(1,6)
         // uploadDataInfo['arrival_time'] = this.ticketInfo[5]
-        uploadDataInfo['arrival'] = load.end  // 到站
+        uploadDataInfo['arrival'] = await page.$eval('body > div.content > div.layout.b-info > div.lay-bd > div.info > strong:nth-child(5) > span:nth-child(2)',res => res.innerText)  // 到站
         uploadDataInfo['arrival_time'] = await page.$eval('body > div.content > div.layout.b-info > div.lay-bd > div.info > span',res => res.innerText)  // 到站时间
 
-        uploadDataInfo['riding_time'] = load.time  // 乘车时间
+        uploadDataInfo['riding_time'] = await page.$eval('body > div.content > div.layout.b-info > div.lay-bd > div.info > strong:nth-child(1)',res => res.innerText)  // 乘车时间
         uploadDataInfo['ticket_check'] = payTicketInfo[0].slice(payTicketInfo[0].indexOf('检票口') + 3)  // 检票口
-        uploadDataInfo['trips_number'] = load.ticketNumber  // 车次
+        uploadDataInfo['trips_number'] = await page.$eval('body > div.content > div.layout.b-info > div.lay-bd > div.info > strong:nth-child(3)',res => res.innerText)  // 车次
         console.log(uploadDataInfo);
         console.log(aliPayId);
 
@@ -1521,7 +1531,11 @@ class Demo{
 
         axios.post('https://tohcp.cn/plug/addBuyTicketsInfo/1', uploadDataInfo)
             .then(update => {
-              console.log(update);
+              if(update.data.code === 0){
+                console.log("数据回填成功");
+              }else {
+                console.log(update.data.msg)
+              }
             }).catch(e => {
           console.log(e);
         })
@@ -1534,6 +1548,89 @@ class Demo{
       }
     }
   }
+
+
+
+  /**
+   * @Description: 退票
+   * @author Wish
+   * @date 2020/1/17
+  */
+  // async refundTicket(load){
+  //   let config = JSON.parse(fs.readFileSync("./config.json").toString());
+  //   browser =  await puppeteer.launch({
+  //     // args: ['--no-sandbox', '--disable-setuid-sandbox','--proxy-server=http://114.98.162.240:9021'],
+  //     args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  //     headless: false, //是否以”无头”的模式运行
+  //     devtools: false, // 是否打开devtools，headless为false时有效
+  //     slowMo: 30, // puppeteer执行速度
+  //     timeout: 0, // 超时，默认30s，0为没有超时
+  //     // executablePath: chromeAddress.address, // 指定可执行chrome路径
+  //     executablePath: config.chromeLocation, // 指定可执行chrome路径
+  //   });
+  //   page = await browser.newPage();
+  //   page.setDefaultNavigationTimeout(0);
+  //   /**
+  //    * @Description: 打开12306登录页
+  //    * @author Wish
+  //    * @date 2019/12/24
+  //    */
+  //   console.log("打开12306登录页");
+  //   await page.goto(config.loginPage);
+  //   await page.setViewport({
+  //     width: parseInt(config.browserWidth),
+  //     height: parseInt(config.browserHeight)
+  //   });
+  //
+  //   await sleep(1000);
+  //
+  //   /**
+  //    * @Description: 选择账号登录
+  //    * @author Wish
+  //    * @date 2019/12/24
+  //    */
+  //   console.log("选择账号登录");
+  //   await page.click("body > div.login-panel > div.login-box > ul > li.login-hd-account"); //直接操作dom选择器，是不是很方便
+  //
+  //   async function login(){
+  //     try {
+  //       console.log("输入账号：" + load.account);
+  //       await page.type('#J-userName', load.account, {delay: 20})
+  //       console.log("输入密码：" + load.password);
+  //       await page.type('#J-password', load.password, {delay: 20})
+  //
+  //       console.log("等待登录");
+  //       await sleep(1000);
+  //     }catch (e) {
+  //       console.log(e);
+  //     }
+  //   }
+  //
+  //   await login()
+  //
+  //   /**
+  //    * @Description: 前往火车票订单页面
+  //    * @author Wish
+  //    * @date 2020/1/17
+  //   */
+  //
+  //   await page.waitForSelector("#js-minHeight",{timeout: 0})
+  //
+  //   await page.waitForSelector('#chepiaodingdan',{timeout: 0});
+  //
+  //   console.log('前往火车票订单页面');
+  //
+  //   await page.click('#chepiaodingdan')
+  //
+  //   console.log('点击为出行订单按钮');
+  //
+  //   await page.waitForSelector('#order_tab > li:nth-child(2) > a')
+  //
+  //   await page.click('#order_tab > li:nth-child(2) > a')
+  //
+  //
+  //
+  // }
 
 
 

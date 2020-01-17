@@ -138,7 +138,7 @@ app.post('/beginAutomatic',(req,res) =>{
     // getBrowswer(req.query.orderId).goTo(config.loginPage)
   browser = new scraper()
   browser.init(config.loginPage)
-  res.end(200)
+  res.end('200')
   // })
   // res.send(200);
 })
@@ -153,7 +153,7 @@ app.post('/beginAutoLogin',(req,res) =>{
 
   browser = new scraper()
   browser.toLogin(req.body)
-  res.end(200)
+  res.end('200')
   // res.send(200);
 })
 
@@ -168,7 +168,7 @@ let browser;
 app.post('/beginAutoAdd',(req,res)=>{
   browser = new scraper()
   browser.addUser(req.body)
-  res.end(200)
+  res.end('200')
 })
 
 
@@ -180,7 +180,7 @@ app.post('/beginAutoAdd',(req,res)=>{
 app.post("/beginQueryTrips",(req,res)=>{
   browser = new scraper()
   browser.selectTicket(req.body)
-  res.end(200)
+  res.end('200')
 })
 
 /**
@@ -191,7 +191,7 @@ app.post("/beginQueryTrips",(req,res)=>{
 app.post("/beginSelectPassengers",(req,res)=>{
   browser = new scraper()
   browser.selectUser(req.body)
-  res.end(200)
+  res.end('200')
 })
 
 /**
@@ -199,10 +199,10 @@ app.post("/beginSelectPassengers",(req,res)=>{
  * @author Wish
  * @date 2020/1/15
 */
-app.get("/beginPayInfo",(req,res)=>{
+app.post("/beginPayInfo",(req,res)=>{
   browser = new scraper()
   browser.uploadPayInfo()
-  res.end(200)
+  res.end('200')
 })
 
 /**
@@ -213,7 +213,19 @@ app.get("/beginPayInfo",(req,res)=>{
 app.post("/beginSuccessInfo",(req,res)=>{
   browser = new scraper()
   browser.uploadSuccessInfo(req.body)
-  res.end(200)
+  res.end('200')
+})
+
+
+/**
+ * @Description: 退票
+ * @author Wish
+ * @date 2020/1/15
+ */
+app.post("/refundTicket",(req,res)=>{
+  browser = new scraper()
+  browser.refundTicket(req.body)
+  res.end('200')
 })
 
 // app.post('/exit',(req,res) =>{

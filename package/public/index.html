@@ -172,10 +172,6 @@
       color: rgba(0,128,128,1);
       text-align: justify;
     }
-    .line{
-      margin: 30px;
-      border-bottom: 1px solid #b4b4b4;
-    }
   </style>
 </head>
 <body>
@@ -231,7 +227,7 @@
 
     <div class="ticket_btn_box">
       <div class="ticket_btn" id="writeAccount">填写账号密码</div>
-      <span class="btn_info">当点击填写12306账号密码后，将自动填入12306账号密码，在填写过程中请勿点击操作页面</span>
+      <span class="btn_info">当点击填写12306账号密码后，将自动填入12306账号密码，在填写过程中</span>
     </div>
 
     <div class="ticket_btn_box">
@@ -259,16 +255,9 @@
       <span class="btn_info">当点击回填订单数据（支付成功页）后，将获取支付成功页的订单号，行程信息，乘客信息等并回填至后台数据库</span>
     </div>
 
-<!--    <div class="line"></div>-->
-
 <!--    <div class="ticket_btn_box">-->
-<!--      <div class="ticket_btn" id="refundTicket">退票（当前用户数据）</div>-->
-<!--      <span class="btn_info">当点击退票按钮时，将会打开新窗口，进行退票操作，请检查用户信息数据是否正确，如信息不正确请及时关闭页面中断操作并刷新数据</span>-->
-<!--    </div>-->
-
-<!--    <div class="ticket_btn_box">-->
-<!--      <div class="ticket_btn" id="changeTicket">改签（当前用户数据）</div>-->
-<!--      <span class="btn_info">当点击改签按钮时，将会打开新窗口，进行改签操作，请检查用户信息数据是否正确，如信息不正确请及时关闭页面中断操作并刷新数据</span>-->
+<!--      <div class="ticket_btn" id="recordingUserInfo">回填订单数据（个人中心）</div>-->
+<!--      <span class="btn_info">如遇支付成功页异常无法回填信息，请先前往个人中心选择无法正确回填的订单进入详情，再点击此按钮</span>-->
 <!--    </div>-->
 
   </div>
@@ -420,9 +409,8 @@
          */
         document.getElementById('recordingPayInfo').onclick = function () {
           axios({
-            method: 'post',
-            url: '/beginPayInfo',
-            data: data
+            method: 'get',
+            url: '/beginPayInfo'
           })
         };
 
@@ -439,19 +427,6 @@
           })
         };
 
-
-        /**
-         * @Description: 退票
-         * @author Wish
-         * @date 2020/1/13
-         */
-        // document.getElementById('refundTicket').onclick = function () {
-        //   axios({
-        //     method: 'post',
-        //     url: '/refundTicket',
-        //     data: data
-        //   })
-        // };
 
 
       }
