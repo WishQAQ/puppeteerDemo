@@ -932,7 +932,7 @@ class Demo{
       }
     },1000)
 
-    await sleep(15000)
+    await sleep(getAliPayTime * 1000)
 
     async function waitPay() {
       try {
