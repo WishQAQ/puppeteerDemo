@@ -208,6 +208,10 @@
           <span id="ticket_route"></span>
         </div>
         <div class="order_message_list">
+          <p class="title">购票状态：</p>
+          <span id="pay_ticket_type"></span>
+        </div>
+        <div class="order_message_list">
           <p class="title">购票乘客信息：</p>
           <ul id="ticket_user_box"></ul>
         </div>
@@ -259,7 +263,12 @@
       <span class="btn_info">当点击回填订单数据（支付成功页）后，将获取支付成功页的订单号，行程信息，乘客信息等并回填至后台数据库</span>
     </div>
 
-<!--    <div class="line"></div>-->
+    <div class="line"></div>
+
+    <div class="ticket_btn_box">
+      <div class="ticket_btn" id="refundTicket">仅登录（适用于退票改签操作，请注意刷新页面数据）</div>
+      <span class="btn_info">当点击仅登录按钮时，将会打开新窗口并填写已有12306账号，请注意数据是否正确</span>
+    </div>
 
 <!--    <div class="ticket_btn_box">-->
 <!--      <div class="ticket_btn" id="refundTicket">退票（当前用户数据）</div>-->
@@ -306,6 +315,10 @@
             data.ticketNumber + ' ' +
             data.end + ' ' +
             data.time
+
+        let payTicketType = document.getElementById('pay_ticket_type')
+        payTicketType.innerText = data.order_type
+        payTicketType.style.color = data.order_type === '未购票'? 'green': data.order_type === '退票'? 'red': data.order_type === '改签'? 'orange': '#000'
 
         for(let i = 0; i< data.info.length; i++) {  // 乘客信息
           document.getElementById('ticket_user_box').innerHTML +=
@@ -441,17 +454,17 @@
 
 
         /**
-         * @Description: 退票
+         * @Description: 仅登录
          * @author Wish
          * @date 2020/1/13
          */
-        // document.getElementById('refundTicket').onclick = function () {
-        //   axios({
-        //     method: 'post',
-        //     url: '/refundTicket',
-        //     data: data
-        //   })
-        // };
+        document.getElementById('refundTicket').onclick = function () {
+          axios({
+            method: 'post',
+            url: '/refundTicket',
+            data: data
+          })
+        };
 
 
       }
