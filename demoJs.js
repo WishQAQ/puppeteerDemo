@@ -536,8 +536,8 @@ class Demo{
   async init(url){
     let config = JSON.parse(fs.readFileSync("./config.json").toString());
     browser =  await puppeteer.launch({
-      // args: ['--no-sandbox', '--disable-setuid-sandbox','--proxy-server=http://114.98.162.240:9021'],
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: ['--no-sandbox', '--disable-setuid-sandbox','--proxy-server='+ config.customizeIp],
+      // args: ['--no-sandbox', '--disable-setuid-sandbox'],
       headless: false, //是否以”无头”的模式运行
       devtools: false, // 是否打开devtools，headless为false时有效
       slowMo: 30, // puppeteer执行速度
@@ -871,7 +871,7 @@ class Demo{
     // console.log("确认信息，关闭核对弹窗");
     // await page.click("#qr_submit_id")  // 确认信息，关闭核对弹窗
 
-    console.log("等待订单信息表格");
+    console.log("控件正在等待订单信息表格");
     await page.waitForSelector("#table_list", {timeout: 0})
 
     const messageDialog = await page.$("#ins_f_close")  // 判断是否有提示框
@@ -888,9 +888,9 @@ class Demo{
         )
     );
 
-    console.log("确认信息，前往网上支付");
+    console.log("请确认信息，控件正在等待前往网上支付");
 
-    await page.click("#payButton")
+    // await page.click("#payButton")
 
     // 点击按钮后，等待新tab对象
     let newPage = await newPagePromise;
@@ -917,10 +917,22 @@ class Demo{
         console.log(e)
       }
     }
-    console.log("等待扫码，请使用支付宝扫码，请勿立即付款，等待返回支付账号后再进行付款");
+    let getAliPayTime = 15
+
+    console.log("请使用支付宝扫码，请勿立即付款，等待返回支付账号后再进行付款，"+getAliPayTime+"秒后开始获取支付账号");
+    console.log("如超过时间未完成扫码将无法自动获取支付账号，请手动复制支付账号以便手动修改信息");
 
 
-    await sleep(10000)
+    await setInterval(() =>{
+      if(getAliPayTime > 1){
+        getAliPayTime -= 1
+        console.log(getAliPayTime+ '秒后开始获取支付账号，请尽快扫码，但请勿付款');
+      }else {
+        return false
+      }
+    },1000)
+
+    await sleep(15000)
 
     async function waitPay() {
       try {
@@ -931,9 +943,6 @@ class Demo{
         serialNumber = await executionContext.evaluate(() => {
           return document.querySelector('#J-orderDetail > div > ul > li > table > tbody > tr:nth-child(2) > td').innerHTML
         })
-        if(aliPayId){
-          console.log(aliPayId);
-        }
       } catch (e) {
         console.log(e)
         await sleep(5000)
@@ -946,13 +955,10 @@ class Demo{
       },500)
     }
 
-    console.log('支付宝账号：'+aliPayId);
-    console.log('支付流水号：'+serialNumber);
+    // console.log('支付宝账号：'+ aliPayId);
+    // console.log('支付流水号：'+ serialNumber);
 
-    console.log('获取支付宝账号：'+ aliPayId)
-
-
-    console.log('等待返回12306页面点击支付完成');
+    console.log('请付款，并返回12306页面点击支付完成按钮');
 
     // 温馨提示弹窗
     await page.waitForSelector('#notifyAlert', {timeout: 0})
