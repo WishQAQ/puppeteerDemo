@@ -917,7 +917,7 @@ class Demo{
         console.log(e)
       }
     }
-    let getAliPayTime = 15
+    let getAliPayTime = parseInt(config.getAliPayIdCountdown)
 
     console.log("请使用支付宝扫码，请勿立即付款，等待返回支付账号后再进行付款，"+getAliPayTime+"秒后开始获取支付账号");
     console.log("如超过时间未完成扫码将无法自动获取支付账号，请手动复制支付账号以便手动修改信息");
